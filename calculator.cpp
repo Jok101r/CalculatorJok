@@ -135,6 +135,31 @@ void Calculator::math_operation(){
         }
     }
 
+
+//    {
+//        if (ui->pushButton_division->isChecked() ) {
+//            answer = previousNumber / nextNumber;
+
+
+//            ui->pushButton_division->setChecked(false);
+//        }
+//        if (ui->pushButton_multi->isChecked() )      {
+//            answer = previousNumber * nextNumber;
+//            ui->pushButton_multi->setChecked(false);
+//        }
+
+//        if (ui->pushButton_minus->isChecked() ){
+//            answer = previousNumber - nextNumber;
+//            ui->pushButton_minus->setChecked(false);
+//        }
+
+//        if (ui->pushButton_plus->isChecked() ){
+//            answer = previousNumber + nextNumber;
+//            ui->pushButton_plus->setChecked(false);
+//        }
+//    }
+
+
     checkUseOperation = true;
 
     previousNumber = answer;
@@ -165,6 +190,7 @@ void Calculator::choice_math_operation(){
 
     }else {
 
+        //QMessageBox::critical(this,"", QString::number(button->isChecked() ));
 
         //можно ли так вызывать сигнал?
         on_pushButton_equally_clicked();
