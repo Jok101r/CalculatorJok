@@ -1,6 +1,7 @@
 #include "calculator.h"
 #include "./ui_calculator.h"
 #include <QMessageBox>
+#include <QtGui>
 
 Calculator::Calculator(QWidget *parent)
     : QMainWindow(parent)
@@ -31,9 +32,6 @@ Calculator::Calculator(QWidget *parent)
     ui->pushButton_plus->setCheckable(true);
 
 
-
-
-
 }
 
 Calculator::~Calculator()
@@ -44,8 +42,6 @@ Calculator::~Calculator()
 void Calculator::defenition_button()
 {
 
-
-
     if (checkUseOperation == true){
         ui->answer_field->setText(0);
         checkUseOperation = false;
@@ -54,9 +50,8 @@ void Calculator::defenition_button()
     QString output;
     double allNumber;
 
-    //запись истории решения в statusbar
-    historyCalculator = historyCalculator + button->text();
-    ui->statusbar->showMessage(historyCalculator);
+    outPutStatusBar(button->text());
+
 
 
     allNumber = (ui->answer_field->text() + button->text()).toDouble();
@@ -78,7 +73,7 @@ void Calculator::on_pushButton_dot_clicked()
 void Calculator::on_pushButton_plus_and_minus_clicked()
 {
     double fullNumber = ui->answer_field->text().toDouble() * -1;
-    ui->answer_field->setText( QString::number(fullNumber) );
+    ui->answer_field->setText( QString::number(fullNumber, 'g',15));
 }
 
 void Calculator::on_pushButton_persent_clicked()
@@ -136,33 +131,9 @@ void Calculator::math_operation(){
     }
 
 
-//    {
-//        if (ui->pushButton_division->isChecked() ) {
-//            answer = previousNumber / nextNumber;
-
-
-//            ui->pushButton_division->setChecked(false);
-//        }
-//        if (ui->pushButton_multi->isChecked() )      {
-//            answer = previousNumber * nextNumber;
-//            ui->pushButton_multi->setChecked(false);
-//        }
-
-//        if (ui->pushButton_minus->isChecked() ){
-//            answer = previousNumber - nextNumber;
-//            ui->pushButton_minus->setChecked(false);
-//        }
-
-//        if (ui->pushButton_plus->isChecked() ){
-//            answer = previousNumber + nextNumber;
-//            ui->pushButton_plus->setChecked(false);
-//        }
-//    }
-
-
     checkUseOperation = true;
 
-    previousNumber = answer;
+    //previousNumber = answer;
 }
 void Calculator::on_pushButton_equally_clicked()
 {
@@ -173,31 +144,101 @@ void Calculator::on_pushButton_equally_clicked()
     checkUseOperation = true;
 }
 
-void Calculator::choice_math_operation(){
+void Calculator::choice_math_operation(){    
 
+    if (UseKeyboard){
+        if (!trigger){
+            previousNumber = ui->answer_field->text().toDouble();
+            trigger = true;
+            checkUseOperation = true;
 
-    QPushButton *button = (QPushButton *)sender();
-
-    historyCalculator = historyCalculator + button->text();
-    ui->statusbar->showMessage(historyCalculator);
-
-    if (!trigger){
-        previousNumber = ui->answer_field->text().toDouble();
-        button->setChecked(false);
-        trigger = true;
-        checkUseOperation = true;
-        operation = button->text();
+        }else {
+            on_pushButton_equally_clicked();
+                previousNumber = answer;
+        }
 
     }else {
 
-        //QMessageBox::critical(this,"", QString::number(button->isChecked() ));
+        QPushButton *button = (QPushButton *)sender();
+        outPutStatusBar(button->text());
 
-        //можно ли так вызывать сигнал?
-        on_pushButton_equally_clicked();
-        operation = button->text();
+
+        if (!trigger){
+            previousNumber = ui->answer_field->text().toDouble();
+            button->setChecked(false);
+            trigger = true;
+            checkUseOperation = true;
+            operation = button->text();
+            button->text();
+
+        }else {
+
+            //QMessageBox::critical(this,"", QString::number(button->isChecked() ));
+
+            on_pushButton_equally_clicked();
+                previousNumber = answer;
+            operation = button->text();
+        }
     }
 
+}
 
 
+void Calculator::keyPressEvent(QKeyEvent *event)
+{
+    UseKeyboard = true;
+
+    if (checkUseOperation == true){
+        ui->answer_field->setText(0);
+        checkUseOperation = false;
+    }
+
+    if (event->text() == "1" || event->text() == "2" || event->text() == "3" ||
+        event->text() == "4" || event->text() == "5" || event->text() == "6" ||
+        event->text() == "7" || event->text() == "8" || event->text() == "9" ||
+        event->text() == "0"){
+
+        QString output;
+        double allNumber;
+
+        outPutStatusBar(event->text());
+
+        allNumber = (ui->answer_field->text() + event->text()).toDouble();
+
+        //увелечение количество символов для экспонициального вывода
+        output = QString::number(allNumber, 'g',15);
+        ui->answer_field->setText(output);
+
+    }
+    if (event->text() == "-" || event->text() == "+" || event->text() == "/" ||
+        event->text() == "*"){
+
+        if (!trigger){
+            operation = event->text();
+        }
+
+        choice_math_operation();
+        operation = event->text();
+        outPutStatusBar(event->text());
+
+    }
+
+    if(event->text() == "="){
+        on_pushButton_equally_clicked();
+        previousNumber = answer;
+    }
+
+    if(event->text() == "%"){
+        on_pushButton_persent_clicked();
+    }
+    UseKeyboard = false;
+
+}
+
+//первое знакомство с r-value и l-value  корректно?
+void Calculator::outPutStatusBar(QString &&inPut)
+{
+    historyCalculator = historyCalculator + inPut;
+    ui->statusbar->showMessage(historyCalculator);
 }
 

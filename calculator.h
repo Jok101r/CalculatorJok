@@ -1,5 +1,4 @@
-#ifndef CALCULATOR_H
-#define CALCULATOR_H
+#pragma once
 
 #include <QMainWindow>
 #include "./ui_calculator.h"
@@ -31,6 +30,8 @@ private slots:
 
     void choice_math_operation();
 
+    virtual void keyPressEvent(QKeyEvent *event);
+
 private:
     Ui::Calculator *ui;
     //первое число в решении
@@ -45,10 +46,12 @@ private:
     bool trigger = false;
     //история изменений
     QString historyCalculator;
-
+    //используется ли ввод с клавиатуры
+    bool UseKeyboard = false;
+    //математическая операция
     QString operation = " ";
 
+    void outPutStatusBar(QString &&);
     void math_operation();
 
 };
-#endif // CALCULATOR_H
