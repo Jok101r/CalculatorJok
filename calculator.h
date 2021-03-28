@@ -51,7 +51,9 @@ private:
     //математическая операция
     QString operation = " ";
 
-    void outPutStatusBar(QString &&);
+    void addOutPutStatusBar(QString &&);
+    void chopOutPutStatusBar(int );
     void math_operation();
+
 
 };
