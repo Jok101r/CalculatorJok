@@ -52,8 +52,6 @@ void Calculator::defenition_button()
 
     addOutPutStatusBar(button->text());
 
-
-
     allNumber = (ui->answer_field->text() + button->text()).toDouble();
 
     //увелечение количество символов для экспонициального вывода
@@ -109,29 +107,22 @@ void Calculator::math_operation(){
     {
         if (operation == "/") {
             answer = previousNumber / nextNumber;
-
-
             ui->pushButton_division->setChecked(false);
         }
         if (operation == "*" )      {
             answer = previousNumber * nextNumber;
             ui->pushButton_multi->setChecked(false);
         }
-
         if (operation == "-" ){
             answer = previousNumber - nextNumber;
             ui->pushButton_minus->setChecked(false);
         }
-
         if (operation == "+" ){
             answer = previousNumber + nextNumber;
             ui->pushButton_plus->setChecked(false);
         }
     }
-
-
     checkUseOperation = true;
-
     previousNumber = answer;
 }
 void Calculator::on_pushButton_equally_clicked()
@@ -139,26 +130,10 @@ void Calculator::on_pushButton_equally_clicked()
 
     math_operation();
     ui->answer_field->setText(QString::number(answer, 'g',15));
-
-    //
-//    if (    historyCalculator[historyCalculator.length()-1] == "-" ||
-//            historyCalculator[historyCalculator.length()-1] == "+" ||
-//            historyCalculator[historyCalculator.length()-1] == "/" ||
-//            historyCalculator[historyCalculator.length()-1] == "*"){
-
-//        if (historyCalculator[historyCalculator.length()-1] != operation){
-//            chopOutPutStatusBar(1);
-//        }
-//    }
-//    else{
-//
-//    }
-    addOutPutStatusBar(std::move(operation));
     checkUseOperation = true;
 }
 
 void Calculator::choice_math_operation(){
-
 
     if (UseKeyboard){
         if (!trigger){
@@ -182,14 +157,15 @@ void Calculator::choice_math_operation(){
             trigger = true;
             checkUseOperation = true;
             operation = button->text();
-            button->text();
 
         }else {
 
-            //QMessageBox::critical(this,"", QString::number(button->isChecked() ));
-
-            on_pushButton_equally_clicked();
+            if (button->isChecked() == false){
+                on_pushButton_equally_clicked();
+            }
             operation = button->text();
+
+            checkUseOperation = true;
         }
     }
 
@@ -215,6 +191,7 @@ void Calculator::keyPressEvent(QKeyEvent *event)
 
         addOutPutStatusBar(event->text());
 
+
         allNumber = (ui->answer_field->text() + event->text()).toDouble();
 
         //увелечение количество символов для экспонициального вывода
@@ -225,36 +202,15 @@ void Calculator::keyPressEvent(QKeyEvent *event)
     if (event->text() == "-" || event->text() == "+" || event->text() == "/" ||
         event->text() == "*"){
 
-        //удаление из статуса дублирующего матемаической операции
-        if (historyCalculator[historyCalculator.length()-1] == event->text()){
-            chopOutPutStatusBar(1);
-        }
-
-
         //сохранение математической операции при первом запуске
         if (!trigger){
             operation = event->text();
 
+
         }
-
-
-        if (    historyCalculator[historyCalculator.length()-1] == "-" ||
-                historyCalculator[historyCalculator.length()-1] == "+" ||
-                historyCalculator[historyCalculator.length()-1] == "/" ||
-                historyCalculator[historyCalculator.length()-1] == "*"){
-
-            if (historyCalculator[historyCalculator.length()-1] != operation){
-                chopOutPutStatusBar(1);
-            }
-        }
-
+        addOutPutStatusBar(event->text());
         choice_math_operation();
         operation = event->text();
-
-
-        addOutPutStatusBar(event->text());
-
-
 
     }
     if (event->key() == Qt::Key_Escape){
@@ -281,10 +237,22 @@ void Calculator::keyPressEvent(QKeyEvent *event)
 }
 
 //первое знакомство с r-value и l-value  корректно?
+//почему l-value необходмо передавать через  std::move
+// если стоят &&
 void Calculator::addOutPutStatusBar(QString &&inPut)
 {
+
+    //удаление из статуса дублирующего матемаической операции
+    if (historyCalculator.length() != 0){
+        if (historyCalculator[historyCalculator.length()-1] == "-"  && inPut == "-"){ return; }
+        if (historyCalculator[historyCalculator.length()-1] == "+"  && inPut == "+"){ return; }
+        if (historyCalculator[historyCalculator.length()-1] == "/"  && inPut == "/"){ return; }
+        if (historyCalculator[historyCalculator.length()-1] == "*"  && inPut == "*"){ return; }
+    }
+
     historyCalculator = historyCalculator + inPut;
     ui->statusbar->showMessage(historyCalculator);
+
 }
 void Calculator::chopOutPutStatusBar(int index)
 {

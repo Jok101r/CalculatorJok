@@ -45,7 +45,7 @@ private:
     //переключение между первым и последующими числами
     bool trigger = false;
     //история изменений
-    QString historyCalculator;
+    QString historyCalculator = "";
     //используется ли ввод с клавиатуры
     bool UseKeyboard = false;
     //математическая операция
