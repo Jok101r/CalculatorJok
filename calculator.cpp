@@ -160,9 +160,10 @@ void Calculator::choice_math_operation(){
 
         }else {
 
-            if (button->isChecked() == false){
+
+            //if (button->isChecked() == false){
                 on_pushButton_equally_clicked();
-            }
+            //}
             operation = button->text();
 
             checkUseOperation = true;
