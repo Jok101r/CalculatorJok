@@ -39,7 +39,12 @@ void Model::calculatingValues()
     {
         if (m_operation == "/")
         {
-            m_answer = m_previousNumber / m_nextNumber;
+            if ( !(m_nextNumber == 0))
+                m_answer = m_previousNumber / m_nextNumber;
+            else {
+                clear();
+                //вывод ошибки на экран;
+            }
         }
         if (m_operation == "*" )
         {

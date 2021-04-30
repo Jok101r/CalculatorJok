@@ -42,14 +42,17 @@ Calculator::~Calculator()
 void Calculator::defenition_button()
 {
 
+    //если введена операция, то обнуляет строку
     if (checkUseOperation == true){
         ui->answer_field->setText(0);
         checkUseOperation = false;
     }
+    //
     QPushButton *button = (QPushButton *)sender();
     QString output;
     double allNumber;
 
+    //убрать
     addOutPutStatusBar(button->text());
 
     allNumber = (ui->answer_field->text() + button->text()).toDouble();
