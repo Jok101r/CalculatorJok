@@ -1,7 +1,7 @@
 #include "calculator.h"
+#include "model.h"
 #include "./ui_calculator.h"
-#include <QMessageBox>
-#include <QtGui>
+
 
 Calculator::Calculator(QWidget *parent)
     : QMainWindow(parent)
@@ -244,13 +244,13 @@ void Calculator::addOutPutStatusBar(QString &&inPut)
 {
 
     //удаление из статуса дублирующего матемаической операции
-    if (historyCalculator.length() != 0){
+  /*  if (historyCalculator.length() != 0){
         if (historyCalculator[historyCalculator.length()-1] == "-"  && inPut == "-"){ return; }
         if (historyCalculator[historyCalculator.length()-1] == "+"  && inPut == "+"){ return; }
         if (historyCalculator[historyCalculator.length()-1] == "/"  && inPut == "/"){ return; }
         if (historyCalculator[historyCalculator.length()-1] == "*"  && inPut == "*"){ return; }
     }
-
+*/
     historyCalculator = historyCalculator + inPut;
     ui->statusbar->showMessage(historyCalculator);
 

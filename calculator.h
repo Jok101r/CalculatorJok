@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QMainWindow>
-#include "./ui_calculator.h"
+#include <QMessageBox>
+#include <QtGui>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Calculator; }
