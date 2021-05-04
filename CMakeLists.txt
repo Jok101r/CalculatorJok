@@ -34,6 +34,8 @@ set(PROJECT_SOURCES
         calculator.ui
         model.cpp
         model.h
+        output.cpp
+        output.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

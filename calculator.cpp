@@ -1,5 +1,4 @@
 #include "calculator.h"
-#include "model.h"
 #include "./ui_calculator.h"
 
 
@@ -8,6 +7,8 @@ Calculator::Calculator(QWidget *parent)
     , ui(new Ui::Calculator)
 {
     ui->setupUi(this);
+    m_model = new Model;
+    m_output = new OutPut;
 
     connect(ui->pushButton_0,SIGNAL(clicked()),this,SLOT(defenition_button()));
     connect(ui->pushButton_1,SIGNAL(clicked()),this,SLOT(defenition_button()));
@@ -21,10 +22,10 @@ Calculator::Calculator(QWidget *parent)
     connect(ui->pushButton_9,SIGNAL(clicked()),this,SLOT(defenition_button()));
 
 
-    connect(ui->pushButton_division,SIGNAL(clicked()),this,SLOT(choice_math_operation()));
-    connect(ui->pushButton_plus,SIGNAL(clicked()),this,SLOT(choice_math_operation()));
-    connect(ui->pushButton_multi,SIGNAL(clicked()),this,SLOT(choice_math_operation()));
-    connect(ui->pushButton_minus,SIGNAL(clicked()),this,SLOT(choice_math_operation()));
+    connect(ui->pushButton_division,SIGNAL(clicked()),this,SLOT(use_math_operation_on_form()));
+    connect(ui->pushButton_plus,SIGNAL(clicked()),this,SLOT(use_math_operation_on_form()));
+    connect(ui->pushButton_multi,SIGNAL(clicked()),this,SLOT(use_math_operation_on_form()));
+    connect(ui->pushButton_minus,SIGNAL(clicked()),this,SLOT(use_math_operation_on_form()));
 
     ui->pushButton_division->setCheckable(true);
     ui->pushButton_multi->setCheckable(true);
@@ -43,55 +44,80 @@ void Calculator::defenition_button()
 {
 
     //если введена операция, то обнуляет строку
-    if (checkUseOperation == true){
+    if (m_checkUseOperation == true){
         ui->answer_field->setText(0);
-        checkUseOperation = false;
+        m_checkUseOperation = false;
     }
-    //
+
     QPushButton *button = (QPushButton *)sender();
     QString output;
     double allNumber;
 
-    //убрать
-    addOutPutStatusBar(button->text());
-
+    inputStatusbar(button->text());
     allNumber = (ui->answer_field->text() + button->text()).toDouble();
 
     //увелечение количество символов для экспонициального вывода
     output = QString::number(allNumber, 'g',15);
     ui->answer_field->setText(output);
 
-}
 
+
+}
+void Calculator::use_math_operation_on_form()
+{
+    QPushButton *button = (QPushButton *)sender();
+
+    choice_math_operation();
+    m_model->setOperation(button->text());
+    inputStatusbar(button->text());
+    button->setChecked(false);
+
+    //от нескольких кликов по математическим операциям
+    m_firstCallNumber = false;
+
+}
+void Calculator::choice_math_operation(){
+
+    if (!m_firstCallNumber){
+        double first = ui->answer_field->text().toDouble();
+        m_model->setPreviusNumber(first);
+        m_firstCallNumber = true;
+        m_checkUseOperation = true;
+
+    }else {
+
+
+        on_pushButton_equally_clicked();
+    }
+
+}
 void Calculator::on_pushButton_dot_clicked()
 {
     //чтобы точка была единственной в answer_field
-    if(!(ui->answer_field->text().contains(".")) ){
+    if(!(ui->answer_field->text().contains(".")) )
+    {
         ui->answer_field->setText(ui->answer_field->text()+".");
+        inputStatusbar(".");
     }
 }
-
 void Calculator::on_pushButton_plus_and_minus_clicked()
 {
     double fullNumber = ui->answer_field->text().toDouble() * -1;
     ui->answer_field->setText( QString::number(fullNumber, 'g',15));
 }
-
 void Calculator::on_pushButton_persent_clicked()
 {
     double fullNumber = ui->answer_field->text().toDouble() / 100;
     ui->answer_field->setText( QString::number(fullNumber) );
 }
-
 void Calculator::on_pushButton_Zero_clicked()
 {
-    previousNumber = 0.0;
-    nextNumber = 0.0;
-    answer = 0.0;
-    checkUseOperation = false;
-    historyCalculator.clear();
-    trigger = false;
-    operation = " ";
+    m_model->clear();
+    m_output->historyStatusBarClear();
+    ui->statusbar->addWidget(m_output->getHistoryStatusBar());
+
+    m_checkUseOperation = false;
+    m_firstCallNumber = false;
 
     ui->pushButton_division->setChecked(false);
     ui->pushButton_multi->setChecked(false);
@@ -100,89 +126,26 @@ void Calculator::on_pushButton_Zero_clicked()
     ui->answer_field->setText(0);
     ui->statusbar->showMessage(0);
 }
-
-void Calculator::math_operation(){
-
-
-    nextNumber = ui->answer_field->text().toDouble();
-
-    //Решение матемаических операций
-    {
-        if (operation == "/") {
-            answer = previousNumber / nextNumber;
-            ui->pushButton_division->setChecked(false);
-        }
-        if (operation == "*" )      {
-            answer = previousNumber * nextNumber;
-            ui->pushButton_multi->setChecked(false);
-        }
-        if (operation == "-" ){
-            answer = previousNumber - nextNumber;
-            ui->pushButton_minus->setChecked(false);
-        }
-        if (operation == "+" ){
-            answer = previousNumber + nextNumber;
-            ui->pushButton_plus->setChecked(false);
-        }
-    }
-    checkUseOperation = true;
-    previousNumber = answer;
-}
 void Calculator::on_pushButton_equally_clicked()
 {
 
-    math_operation();
-    ui->answer_field->setText(QString::number(answer, 'g',15));
-    checkUseOperation = true;
-}
-
-void Calculator::choice_math_operation(){
-
-    if (UseKeyboard){
-        if (!trigger){
-            previousNumber = ui->answer_field->text().toDouble();
-            trigger = true;
-            checkUseOperation = true;
-
-        }else {
-            on_pushButton_equally_clicked();
-        }
-
-    }else {
-
-        QPushButton *button = (QPushButton *)sender();
-        addOutPutStatusBar(button->text());
-
-
-        if (!trigger){
-            previousNumber = ui->answer_field->text().toDouble();
-            button->setChecked(false);
-            trigger = true;
-            checkUseOperation = true;
-            operation = button->text();
-
-        }else {
-
-
-            //if (button->isChecked() == false){
-                on_pushButton_equally_clicked();
-            //}
-            operation = button->text();
-
-            checkUseOperation = true;
-        }
+    m_model->setNextNumber(ui->answer_field->text().toDouble());
+    //в случае появление ошибок
+    m_model->calculatingValues(this);
+    if (m_model->getError() > 0)
+    {
+        on_pushButton_Zero_clicked();
     }
-
+    ui->answer_field->setText(QString::number(m_model->getAnswer(), 'g',15));
+    m_checkUseOperation = true;
 }
-
-
 void Calculator::keyPressEvent(QKeyEvent *event)
 {
     UseKeyboard = true;
 
-    if (checkUseOperation == true){
+    if (m_checkUseOperation == true){
         ui->answer_field->setText(0);
-        checkUseOperation = false;
+        m_checkUseOperation = false;
     }
 
     if (event->text() == "1" || event->text() == "2" || event->text() == "3" ||
@@ -193,9 +156,7 @@ void Calculator::keyPressEvent(QKeyEvent *event)
         QString output;
         double allNumber;
 
-        addOutPutStatusBar(event->text());
-
-
+        inputStatusbar(event->text());
         allNumber = (ui->answer_field->text() + event->text()).toDouble();
 
         //увелечение количество символов для экспонициального вывода
@@ -207,14 +168,15 @@ void Calculator::keyPressEvent(QKeyEvent *event)
         event->text() == "*"){
 
         //сохранение математической операции при первом запуске
-        if (!trigger){
-            operation = event->text();
-
-
+        if (!m_firstCallNumber)
+        {
+            m_model->setOperation(event->text());
         }
-        addOutPutStatusBar(event->text());
+
+        inputStatusbar(event->text());
         choice_math_operation();
-        operation = event->text();
+
+        m_model->setOperation(event->text());
 
     }
     if (event->key() == Qt::Key_Escape){
@@ -225,7 +187,8 @@ void Calculator::keyPressEvent(QKeyEvent *event)
         QString str = ui->answer_field->text();
         str.chop(1);
         ui->answer_field->setText(str);
-        chopOutPutStatusBar(1);
+        m_output->chopOutPutStatusBar(1);
+        m_output->getHistoryStatusBar();
 
     }
 
@@ -236,31 +199,17 @@ void Calculator::keyPressEvent(QKeyEvent *event)
     if(event->text() == "%"){
         on_pushButton_persent_clicked();
     }
+
+    if (event->text() == "," || event->text() == ".")
+    {
+        on_pushButton_dot_clicked();
+    }
     UseKeyboard = false;
 
 }
-
-//первое знакомство с r-value и l-value  корректно?
-//почему l-value необходмо передавать через  std::move
-// если стоят &&
-void Calculator::addOutPutStatusBar(QString &&inPut)
+void Calculator::inputStatusbar(const QString &input)
 {
 
-    //удаление из статуса дублирующего матемаической операции
-  /*  if (historyCalculator.length() != 0){
-        if (historyCalculator[historyCalculator.length()-1] == "-"  && inPut == "-"){ return; }
-        if (historyCalculator[historyCalculator.length()-1] == "+"  && inPut == "+"){ return; }
-        if (historyCalculator[historyCalculator.length()-1] == "/"  && inPut == "/"){ return; }
-        if (historyCalculator[historyCalculator.length()-1] == "*"  && inPut == "*"){ return; }
-    }
-*/
-    historyCalculator = historyCalculator + inPut;
-    ui->statusbar->showMessage(historyCalculator);
-
+    m_output->addHistoryStatusBar(input);
+    ui->statusbar->addWidget(m_output->getHistoryStatusBar());
 }
-void Calculator::chopOutPutStatusBar(int index)
-{
-    historyCalculator.chop(index);
-    ui->statusbar->showMessage(historyCalculator);
-}
-

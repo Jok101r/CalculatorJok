@@ -10,6 +10,11 @@ double Model::getAnswer()
     return m_answer;
 }
 
+int Model::getError()
+{
+    return m_error;
+}
+
 void Model::setPreviusNumber(double previousNumber)
 {
     m_previousNumber = previousNumber;
@@ -31,9 +36,10 @@ void Model::clear()
     m_nextNumber = 0.0;
     m_answer = 0.0;
     m_operation = " ";
+    m_error = 0;
 }
 
-void Model::calculatingValues()
+void Model::calculatingValues(QWidget *qw)
 {
     //Решение матемаических операций
     {
@@ -42,8 +48,8 @@ void Model::calculatingValues()
             if ( !(m_nextNumber == 0))
                 m_answer = m_previousNumber / m_nextNumber;
             else {
-                clear();
-                //вывод ошибки на экран;
+                m_error = QMessageBox::warning(qw, "Warning!!!", "You cannot divide by zero!");
+
             }
         }
         if (m_operation == "*" )
@@ -59,4 +65,7 @@ void Model::calculatingValues()
             m_answer = m_previousNumber + m_nextNumber;
         }
     }
+
+    m_previousNumber = m_answer;
+
 }
