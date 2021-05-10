@@ -26,7 +26,7 @@ private slots:
     void on_pushButton_persent_clicked();
     void on_pushButton_Zero_clicked();
     void on_pushButton_equally_clicked();
-    void choice_math_operation();
+    void choice_math_operation(const QString &);
 
     virtual void keyPressEvent(QKeyEvent *event);
 
@@ -39,8 +39,14 @@ private:
 
     //проверка использовании математических операция
     bool m_checkUseOperation = false;
-    //переключение между первым и последующими числами
-    bool m_firstCallNumber = false;
+
+    //переключение между первым и последующими операциями
+    bool m_secondCallNumber = false;
+
+    //от двойных кликов по операциями
+    bool doubleClickOperation = false;
+
+    bool firstras = true;
 
     //используется ли ввод с клавиатуры
     bool UseKeyboard = false;

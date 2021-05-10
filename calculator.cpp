@@ -42,7 +42,6 @@ Calculator::~Calculator()
 
 void Calculator::defenition_button()
 {
-
     //если введена операция, то обнуляет строку
     if (m_checkUseOperation == true){
         ui->answer_field->setText(0);
@@ -60,6 +59,8 @@ void Calculator::defenition_button()
     output = QString::number(allNumber, 'g',15);
     ui->answer_field->setText(output);
 
+    doubleClickOperation = true;
+
 
 
 }
@@ -67,27 +68,44 @@ void Calculator::use_math_operation_on_form()
 {
     QPushButton *button = (QPushButton *)sender();
 
-    choice_math_operation();
-    m_model->setOperation(button->text());
-    inputStatusbar(button->text());
+    choice_math_operation(button->text());
+
     button->setChecked(false);
 
-    //от нескольких кликов по математическим операциям
-    m_firstCallNumber = false;
-
 }
-void Calculator::choice_math_operation(){
+void Calculator::choice_math_operation(const QString &operation){
 
-    if (!m_firstCallNumber){
+    if (m_model->getOperation() != operation && m_secondCallNumber == true)
+    {
+
+       doubleClickOperation = false;
+       m_model->setOperation(operation);
+       m_model->setPreviusNumber(m_model->getAnswer());
+       inputStatusbar(operation);
+       m_checkUseOperation = true;
+
+
+       //не выводит ответ после смены знакак 50/2+10 не работает
+
+    }
+
+    if (doubleClickOperation)
+    {
+        if (m_secondCallNumber)
+        {
+            on_pushButton_equally_clicked();
+        }
         double first = ui->answer_field->text().toDouble();
         m_model->setPreviusNumber(first);
-        m_firstCallNumber = true;
+        m_model->setOperation(operation);
+        inputStatusbar(operation);
+
+        m_secondCallNumber = true;
         m_checkUseOperation = true;
 
-    }else {
+        doubleClickOperation = false;
 
 
-        on_pushButton_equally_clicked();
     }
 
 }
@@ -117,7 +135,8 @@ void Calculator::on_pushButton_Zero_clicked()
     ui->statusbar->addWidget(m_output->getHistoryStatusBar());
 
     m_checkUseOperation = false;
-    m_firstCallNumber = false;
+    m_secondCallNumber = false;
+    doubleClickOperation = false;
 
     ui->pushButton_division->setChecked(false);
     ui->pushButton_multi->setChecked(false);
@@ -129,29 +148,46 @@ void Calculator::on_pushButton_Zero_clicked()
 void Calculator::on_pushButton_equally_clicked()
 {
 
+
     m_model->setNextNumber(ui->answer_field->text().toDouble());
+
     //в случае появление ошибок
-    m_model->calculatingValues(this);
-    if (m_model->getError() > 0)
+    try
     {
-        on_pushButton_Zero_clicked();
+        m_model->calculatingValues();
     }
+    catch (std::runtime_error & err)
+    {
+        QMessageBox::warning(this, "Warning!!!", err.what());
+        m_output->chopOutPutStatusBar(1);
+        m_output->getHistoryStatusBar();
+    }
+
     ui->answer_field->setText(QString::number(m_model->getAnswer(), 'g',15));
+
+    doubleClickOperation = true;
+    m_secondCallNumber = false;
+
+
     m_checkUseOperation = true;
 }
 void Calculator::keyPressEvent(QKeyEvent *event)
 {
     UseKeyboard = true;
 
-    if (m_checkUseOperation == true){
-        ui->answer_field->setText(0);
-        m_checkUseOperation = false;
-    }
 
     if (event->text() == "1" || event->text() == "2" || event->text() == "3" ||
         event->text() == "4" || event->text() == "5" || event->text() == "6" ||
         event->text() == "7" || event->text() == "8" || event->text() == "9" ||
         event->text() == "0"){
+
+        //если введена операция, то обнуляет строку
+        if (m_checkUseOperation == true){
+            ui->answer_field->setText(0);
+            m_checkUseOperation = false;
+        }
+
+        doubleClickOperation = true;
 
         QString output;
         double allNumber;
@@ -165,18 +201,10 @@ void Calculator::keyPressEvent(QKeyEvent *event)
 
     }
     if (event->text() == "-" || event->text() == "+" || event->text() == "/" ||
-        event->text() == "*"){
+        event->text() == "*")
+    {
 
-        //сохранение математической операции при первом запуске
-        if (!m_firstCallNumber)
-        {
-            m_model->setOperation(event->text());
-        }
-
-        inputStatusbar(event->text());
-        choice_math_operation();
-
-        m_model->setOperation(event->text());
+        choice_math_operation(event->text());
 
     }
     if (event->key() == Qt::Key_Escape){

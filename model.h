@@ -2,7 +2,6 @@
 
 #include <QString>
 #include <QMessageBox>
-#include <QWidget>
 
 
 class Model
@@ -12,12 +11,13 @@ public:
 
     double getAnswer();
     int getError();
+    QString getOperation();
 
     void setPreviusNumber(double);
     void setNextNumber(double);
     void setOperation(QString );
     void clear();
-    void calculatingValues(QWidget *);
+    void calculatingValues();
 
 
 
@@ -33,11 +33,8 @@ private:
     //математическая операция
     QString m_operation = " ";
 
-    //Код ошибок
-
-    unsigned int m_error = 0;
-
 
     void math_operation();
+
 };
 
