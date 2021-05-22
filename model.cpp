@@ -10,61 +10,75 @@ double Model::getAnswer()
     return m_answer;
 }
 
-void Model::setPreviusNumber(double previousNumber)
+void Model::setFirstArgument(double firstArgument)
 {
-    m_previousNumber = previousNumber;
+    m_firstArgument = firstArgument;
 }
 
-void Model::setNextNumber(double nextNumber)
+void Model::setSecondArgument(double secondArgument)
 {
-    m_nextNumber = nextNumber;
+    m_secondArgument = secondArgument;
 }
 
-void Model::setOperation(QString operation)
+void Model::setOperation(Operation operation)
 {
-    assert(operation == "+" ||  operation == "-" || operation == "*" || operation == "/" || operation == "");
+    assert(operation != Operation::No);
     m_operation = operation;
 }
 
-QString Model::getOperation()
+Model::Operation Model::getOperation()
 {
     return m_operation;
 }
 
+
 void Model::clear()
 {
-    m_previousNumber = 0.0;
-    m_nextNumber = 0.0;
+    m_firstArgument = 0.0;
+    m_secondArgument = 0.0;
     m_answer = 0.0;
-    m_operation = " ";
+    m_operation = Operation::No;
+
 }
 
 void Model::calculatingValues()
 {
     //Решение матемаических операций
+    switch (m_operation)
     {
-        if (m_operation == "/")
+        case Operation::No:
         {
-            if ( !(m_nextNumber == 0))
-                m_answer = m_previousNumber / m_nextNumber;
-            else {
 
+            throw std::runtime_error("Operation not found!");
+        }; break;
+
+        case Operation::Minus:
+        {
+            m_answer = m_firstArgument - m_secondArgument;
+
+        }; break;
+
+        case Operation::Plus:
+        {
+            m_answer = m_firstArgument + m_secondArgument;
+
+        }; break;
+
+        case Operation::Divide:
+        {
+            if ( m_secondArgument == 0 )
+            {
                 throw std::runtime_error("You cannot divide by zero!");
-
             }
-        }
-        if (m_operation == "*" )
+            m_answer = m_firstArgument / m_secondArgument;
+
+        }; break;
+
+        case Operation::Multiply:
         {
-            m_answer = m_previousNumber * m_nextNumber;
-        }
-        if (m_operation == "-" )
-        {
-            m_answer = m_previousNumber - m_nextNumber;
-        }
-        if (m_operation == "+" )
-        {
-            m_answer = m_previousNumber + m_nextNumber;
-        }
+            m_answer = m_firstArgument * m_secondArgument;
+
+        }; break;
     }
 
 }

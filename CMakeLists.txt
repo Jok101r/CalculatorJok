@@ -29,13 +29,16 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
+        view.cpp
+        view.h
+        view.ui
         calculator.cpp
         calculator.h
-        calculator.ui
         model.cpp
         model.h
         output.cpp
         output.h
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -44,7 +47,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     )
 else()
     if(ANDROID)
-        add_library(Calculator SHARED
+        add_library(View SHARED
             ${PROJECT_SOURCES}
         )
     else()

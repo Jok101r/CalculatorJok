@@ -8,14 +8,22 @@ class Model
 {
 public:
     Model();
+    enum class Operation
+    {
+        Plus,
+        Minus,
+        Divide,
+        Multiply,
+        No
+    };
+
 
     double getAnswer();
-    int getError();
-    QString getOperation();
+    Model::Operation getOperation();
 
-    void setPreviusNumber(double);
-    void setNextNumber(double);
-    void setOperation(QString );
+    void setFirstArgument(double);
+    void setSecondArgument(double);
+    void setOperation(Operation );
     void clear();
     void calculatingValues();
 
@@ -23,15 +31,13 @@ public:
 
 private:
     //первое число в решении
-    double m_previousNumber = 0.0;
+    double m_firstArgument = 0.0;
     //второе число
-    double m_nextNumber = 0.0;
+    double m_secondArgument = 0.0;
     //ответ
     double m_answer = 0.0;
-    //переключение между первым и последующими числами
-    bool m_trigger = false;
-    //математическая операция
-    QString m_operation = " ";
+
+    Operation m_operation = Operation::No;
 
 
     void math_operation();
